@@ -118,7 +118,7 @@ async def dashboard(request: Request):
             current_price = 0
         else:
             coin_id = COINS[coin_key]
-            current_price = prices.get(coin_id, {}).get("usd", 0)
+            current_price = prices.get(slug, {}).get("usd", investment.buy_price)
 
         current_value = inv.quantity * current_price
         profit_usd = current_value - inv.invested_amount
