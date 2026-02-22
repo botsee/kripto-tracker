@@ -1,0 +1,118 @@
+<html>
+<head>
+    <title>Crypto Portfolio</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<h1>Crypto Portfolio</h1>
+
+<div class="grid">
+
+    <div class="card">
+        <h3>Portfolio (USD)</h3>
+        <div class="value">${{ "%.2f"|format(total_value_usd) }}</div>
+    </div>
+
+    <div class="card">
+        <h3>Portfolio (HUF)</h3>
+        <div class="value">{{ "%.0f"|format(total_value_usd * usd_huf_now) }} Ft</div>
+    </div>
+
+    <div class="card">
+        <h3>Total Profit</h3>
+        <div class="value {% if total_profit_usd >= 0 %}green{% else %}red{% endif %}">
+            {{ "%.2f"|format(total_profit_usd) }} USD
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>USD/HUF Rate</h3>
+        <div class="value">{{ "%.2f"|format(usd_huf_now) }} Ft</div>
+
+        <div style="margin-top:15px; font-size:14px; opacity:0.8;">
+            BTC: ${{ prices.get("bitcoin", {}).get("usd", "-") }}<br>
+ETH: ${{ prices.get("ethereum", {}).get("usd", "-") }}<br>
+SOL: ${{ prices.get("solana", {}).get("usd", "-") }}<br>
+SUI: ${{ prices.get("sui", {}).get("usd", "-") }}<br>
+XRP: ${{ prices.get("ripple", {}).get("usd", "-") }}
+        </div>
+    </div>
+
+</div>
+
+<h2>Add Investment</h2>
+
+<form action="/add" method="post">
+
+    <select name="asset">
+        <option value="btc">BTC</option>
+        <option value="eth">ETH</option>
+        <option value="sol">SOL</option>
+        <option value="sui">SUI</option>
+        <option value="xrp">XRP</option>
+    </select>
+
+    <input type="number" step="0.01" name="buy_price" placeholder="Buy Price USD" required>
+    <input type="number" step="0.01" name="invested_amount" placeholder="Invested USD" required>
+
+    <input type="date" name="purchase_date" required>
+
+    <button type="submit">Add</button>
+
+</form>
+
+<h2>Investments</h2>
+
+<table>
+<tr>
+    <th>Asset</th>
+    <th>Buy</th>
+    <th>Current</th>
+    <th>Invested</th>
+    <th>Qty</th>
+    <th>Profit %</th>
+    <th>Profit USD</th>
+    <th>Profit HUF</th>
+    <th>USD/HUF @ Buy</th>
+    <th>Date</th>
+    <th>Days</th>
+    <th>Delete</th>
+</tr>
+
+{% for inv in investments %}
+<tr>
+    <td>{{ inv.asset }}</td>
+    <td>${{ "%.2f"|format(inv.buy_price) }}</td>
+    <td>${{ "%.2f"|format(inv.current_price) }}</td>
+    <td>${{ "%.2f"|format(inv.invested) }}</td>
+    <td>{{ "%.6f"|format(inv.quantity) }}</td>
+
+    <td class="{% if inv.profit_usd >= 0 %}green{% else %}red{% endif %}">
+        {{ "%.2f"|format((inv.profit_usd / inv.invested) * 100) }}%
+    </td>
+
+    <td class="{% if inv.profit_usd >= 0 %}green{% else %}red{% endif %}">
+        {{ "%.2f"|format(inv.profit_usd) }}
+    </td>
+
+    <td class="{% if inv.profit_huf >= 0 %}green{% else %}red{% endif %}">
+        {{ "%.0f"|format(inv.profit_huf) }} Ft
+    </td>
+
+    <td>{{ "%.2f"|format(inv.usd_huf_at_purchase) }}</td>
+    <td>{{ inv.purchase_date }}</td>
+    <td>{{ inv.days_held }}</td>
+    <td>
+    <form action="/delete/{{ inv.id }}" method="post">
+        <button type="submit" class="delete-btn">X</button>
+    </form>
+</td>
+
+</tr>
+{% endfor %}
+
+</table>
+
+</body>
+</html>
