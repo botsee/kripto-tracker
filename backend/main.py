@@ -114,11 +114,11 @@ async def dashboard(request: Request):
 
         coin_key = inv.asset.lower()
 
-        if coin_key not in COINS:
-            current_price = 0
-        else:
-            coin_id = COINS[coin_key]
-            current_price = prices.get(slug, {}).get("usd", investment.buy_price)
+       if coin_key not in COINS:
+    current_price = inv.buy_price
+else:
+    coin_id = COINS[coin_key]
+    current_price = prices.get(coin_id, {}).get("usd", inv.buy_price)
 
         current_value = inv.quantity * current_price
         profit_usd = current_value - inv.invested_amount
